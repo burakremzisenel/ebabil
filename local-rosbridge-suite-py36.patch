@@ -1,0 +1,498 @@
+diff --git a/rosapi/src/rosapi/async_helper.py b/rosapi/src/rosapi/async_helper.py
+index e93b6da..88c3d77 100644
+--- a/rosapi/src/rosapi/async_helper.py
++++ b/rosapi/src/rosapi/async_helper.py
+@@ -1,3 +1,4 @@
++from typing import Any, Dict, List, Set, Tuple, Optional, Any, Dict, List, Set, Tuple, Optional
+ # Software License Agreement (BSD License)
+ #
+ # Copyright (c) 2025, Fictionlab sp. z o.o.
+@@ -34,7 +35,7 @@ from rclpy.node import Node
+ from rclpy.task import Future
+ 
+ 
+-async def futures_wait_for(node: Node, futures: list[Future], timeout_sec: float):
++async def futures_wait_for(node: Node, futures: List[Future], timeout_sec: float):
+     """Await a list of futures with a timeout."""
+     first_done_future: Future = Future()
+ 
+diff --git a/rosapi/src/rosapi/objectutils.py b/rosapi/src/rosapi/objectutils.py
+index 0a8c01a..89e74f6 100644
+--- a/rosapi/src/rosapi/objectutils.py
++++ b/rosapi/src/rosapi/objectutils.py
+@@ -1,3 +1,4 @@
++from typing import Any, Dict, List, Set, Tuple, Optional, Any, Dict, List, Set, Tuple, Optional
+ # Software License Agreement (BSD License)
+ #
+ # Copyright (c) 2012, Willow Garage, Inc.
+@@ -78,7 +79,8 @@ def get_typedef(type_name):
+     get_typedef will return a typedef dict for the specified message type.
+     """
+     # Check if the type string indicates a sequence (array) type
+-    if matches := re.findall("sequence<([^<]+)>", type_name):
++    matches = re.findall("sequence<([^<]+)>", type_name)
++    if matches:
+         # Extract the inner type and continue processing
+         type_name = matches[0]
+ 
+@@ -236,7 +238,8 @@ def _handle_type_and_array_len(instance, name):
+     arraylen = -1
+ 
+     # If field_type is a sequence, update the `field_type` variable.
+-    if matches := re.findall("sequence<([^<]+)>", field_type):
++    matches = re.findall("sequence<([^<]+)>", field_type)
++    if matches:
+         # Extract the inner type and continue processing
+         field_type = matches[0]
+         arraylen = 0
+diff --git a/rosapi/src/rosapi/params.py b/rosapi/src/rosapi/params.py
+index 11250fb..c6a8860 100644
+--- a/rosapi/src/rosapi/params.py
++++ b/rosapi/src/rosapi/params.py
+@@ -30,11 +30,10 @@
+ # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ # POSSIBILITY OF SUCH DAMAGE.
+-from __future__ import annotations
+ 
+ import fnmatch
+ from json import dumps, loads
+-from typing import TYPE_CHECKING
++from typing import Any, Dict, List, Set, Tuple, Optional, TYPE_CHECKING
+ 
+ from rcl_interfaces.msg import Parameter, ParameterType, ParameterValue
+ from rcl_interfaces.srv import GetParameters, ListParameters, SetParameters
+@@ -94,7 +93,7 @@ def init(node: Node, timeout_sec: float = DEFAULT_PARAM_TIMEOUT_SEC):
+     _timeout_sec = timeout_sec
+ 
+ 
+-async def set_param(node_name: str, name: str, value: str, params_glob: list[str]):
++async def set_param(node_name: str, name: str, value: str, params_glob: List[str]):
+     """Set a parameter in a given node."""
+     if params_glob and not any(fnmatch.fnmatch(str(name), glob) for glob in params_glob):
+         # If the glob list is not empty and there are no glob matches,
+@@ -262,12 +261,12 @@ async def delete_param(node_name, name, params_glob):
+         await _set_param(node_name, name, None, ParameterType.PARAMETER_NOT_SET)
+ 
+ 
+-async def get_param_names(params_glob: str | None) -> list[str]:
++async def get_param_names(params_glob: str | None) -> List[str]:
+     assert _node is not None
+ 
+     nodes = [get_absolute_node_name(node) for node in get_nodes()]
+ 
+-    futures: list[tuple[str, Future]] = []
++    futures: List[tuple[str, Future]] = []
+     clients = []
+     for node_name in nodes:
+         if node_name == _node.get_fully_qualified_name():
+diff --git a/rosapi/src/rosapi/proxy.py b/rosapi/src/rosapi/proxy.py
+index e7192dc..4e2ecab 100644
+--- a/rosapi/src/rosapi/proxy.py
++++ b/rosapi/src/rosapi/proxy.py
+@@ -1,3 +1,4 @@
++from typing import Any, Dict, List, Set, Tuple, Optional, Any, Dict, List, Set, Tuple, Optional
+ # Software License Agreement (BSD License)
+ #
+ # Copyright (c) 2012, Willow Garage, Inc.
+@@ -240,13 +241,13 @@ def get_channel_info(channel, channels_glob, getter_function, include_hidden=Fal
+     :param channel: The name of the channel to query.
+     :type channel: str
+     :param channels_glob: A list of glob patterns to filter the channels.
+-    :type channels_glob: list[str]
++    :type channels_glob: List[str]
+     :param getter_function: A function to get the channel information for a given node.
+     :type getter_function: Callable
+     :param include_hidden: Whether to include hidden nodes in the search.
+     :type include_hidden: bool
+     :return: A list of node names that match the specified channel.
+-    :rtype: list[str]
++    :rtype: List[str]
+     """
+     if any_match(str(channel), channels_glob):
+         channel_info_list = []
+diff --git a/rosbridge_library/src/rosbridge_library/capabilities/action_feedback.py b/rosbridge_library/src/rosbridge_library/capabilities/action_feedback.py
+index 8163fa6..0476b5b 100644
+--- a/rosbridge_library/src/rosbridge_library/capabilities/action_feedback.py
++++ b/rosbridge_library/src/rosbridge_library/capabilities/action_feedback.py
+@@ -1,3 +1,4 @@
++from typing import Any, Dict, List, Set, Tuple, Optional, Any, Dict, List, Set, Tuple, Optional
+ # Software License Agreement (BSD License)
+ #
+ # Copyright (c) 2023, PickNik Inc.
+@@ -56,7 +57,7 @@ class ActionFeedback(Capability):
+         # check for the action
+         action_name = message["action"]
+         if action_name in self.protocol.external_action_list:
+-            action_handler = self.protocol.external_action_list[action_name]
++            action_handler = self.protocol.external_action_List[action_name]
+             # parse the message
+             goal_id = message["id"]
+             values = message["values"]
+diff --git a/rosbridge_library/src/rosbridge_library/capabilities/action_result.py b/rosbridge_library/src/rosbridge_library/capabilities/action_result.py
+index 8c4dee6..97664ad 100644
+--- a/rosbridge_library/src/rosbridge_library/capabilities/action_result.py
++++ b/rosbridge_library/src/rosbridge_library/capabilities/action_result.py
+@@ -1,3 +1,4 @@
++from typing import Any, Dict, List, Set, Tuple, Optional, Any, Dict, List, Set, Tuple, Optional
+ # Software License Agreement (BSD License)
+ #
+ # Copyright (c) 2023, PickNik Inc.
+@@ -58,7 +59,7 @@ class ActionResult(Capability):
+         # check for the action
+         action_name = message["action"]
+         if action_name in self.protocol.external_action_list:
+-            action_handler = self.protocol.external_action_list[action_name]
++            action_handler = self.protocol.external_action_List[action_name]
+             goal_id = message["id"]
+             if message["result"]:
+                 # parse the message
+diff --git a/rosbridge_library/src/rosbridge_library/capabilities/advertise_action.py b/rosbridge_library/src/rosbridge_library/capabilities/advertise_action.py
+index 7d6602a..435713a 100644
+--- a/rosbridge_library/src/rosbridge_library/capabilities/advertise_action.py
++++ b/rosbridge_library/src/rosbridge_library/capabilities/advertise_action.py
+@@ -31,7 +31,7 @@
+ # POSSIBILITY OF SUCH DAMAGE.
+ 
+ import fnmatch
+-from typing import Any
++from typing import Any, Dict, List, Set, Tuple, Optional, Any
+ 
+ from action_msgs.msg import GoalStatus
+ from rclpy.action import ActionServer
+@@ -51,9 +51,9 @@ class AdvertisedActionHandler:
+     def __init__(
+         self, action_name: str, action_type: str, protocol: Protocol, sleep_time: float = 0.001
+     ) -> None:
+-        self.goal_futures: dict[str, Future] = {}
+-        self.goal_handles: dict[str, Any] = {}
+-        self.goal_statuses: dict[str, GoalStatus] = {}
++        self.goal_futures: Dict[str, Future] = {}
++        self.goal_handles: Dict[str, Any] = {}
++        self.goal_statuses: Dict[str, GoalStatus] = {}
+ 
+         self.action_name = action_name
+         self.action_type = action_type
+@@ -243,11 +243,11 @@ class AdvertiseAction(Capability):
+         # check for an existing entry
+         if action_name in self.protocol.external_action_list:
+             self.protocol.log("warn", f"Duplicate action advertised. Overwriting {action_name}.")
+-            self.protocol.external_action_list[action_name].graceful_shutdown()
+-            del self.protocol.external_action_list[action_name]
++            self.protocol.external_action_List[action_name].graceful_shutdown()
++            del self.protocol.external_action_List[action_name]
+ 
+         # setup and store the action information
+         action_type = message["type"]
+         action_handler = AdvertisedActionHandler(action_name, action_type, self.protocol)
+-        self.protocol.external_action_list[action_name] = action_handler
++        self.protocol.external_action_List[action_name] = action_handler
+         self.protocol.log("info", f"Advertised action {action_name}")
+diff --git a/rosbridge_library/src/rosbridge_library/capabilities/advertise_service.py b/rosbridge_library/src/rosbridge_library/capabilities/advertise_service.py
+index c7a6f26..b68a35b 100644
+--- a/rosbridge_library/src/rosbridge_library/capabilities/advertise_service.py
++++ b/rosbridge_library/src/rosbridge_library/capabilities/advertise_service.py
+@@ -1,3 +1,4 @@
++from typing import Any, Dict, List, Set, Tuple, Optional, Any, Dict, List, Set, Tuple, Optional
+ import fnmatch
+ 
+ import rclpy
+@@ -132,11 +133,11 @@ class AdvertiseService(Capability):
+         # check for an existing entry
+         if service_name in self.protocol.external_service_list:
+             self.protocol.log("warn", f"Duplicate service advertised. Overwriting {service_name}.")
+-            self.protocol.external_service_list[service_name].graceful_shutdown()
+-            del self.protocol.external_service_list[service_name]
++            self.protocol.external_service_List[service_name].graceful_shutdown()
++            del self.protocol.external_service_List[service_name]
+ 
+         # setup and store the service information
+         service_type = message["type"]
+         service_handler = AdvertisedServiceHandler(service_name, service_type, self.protocol)
+-        self.protocol.external_service_list[service_name] = service_handler
++        self.protocol.external_service_List[service_name] = service_handler
+         self.protocol.log("info", f"Advertised service {service_name}")
+diff --git a/rosbridge_library/src/rosbridge_library/capabilities/defragmentation.py b/rosbridge_library/src/rosbridge_library/capabilities/defragmentation.py
+index aaec985..4d9c31f 100644
+--- a/rosbridge_library/src/rosbridge_library/capabilities/defragmentation.py
++++ b/rosbridge_library/src/rosbridge_library/capabilities/defragmentation.py
+@@ -1,3 +1,4 @@
++from typing import Any, Dict, List, Set, Tuple, Optional, Any, Dict, List, Set, Tuple, Optional
+ import threading
+ import time
+ 
+@@ -28,7 +29,7 @@ class ReceivedFragments:
+     #     }
+     # },
+     # ...
+-    lists: dict[str, dict]
++    lists: Dict[str, dict]
+ 
+     def __init__(self):
+         """Create singleton instance."""
+diff --git a/rosbridge_library/src/rosbridge_library/capabilities/send_action_goal.py b/rosbridge_library/src/rosbridge_library/capabilities/send_action_goal.py
+index 1f12fdb..cff8f6d 100644
+--- a/rosbridge_library/src/rosbridge_library/capabilities/send_action_goal.py
++++ b/rosbridge_library/src/rosbridge_library/capabilities/send_action_goal.py
+@@ -30,12 +30,11 @@
+ # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ # POSSIBILITY OF SUCH DAMAGE.
+ 
+-from __future__ import annotations
+ 
+ import fnmatch
+ from functools import partial
+ from threading import Thread
+-from typing import TYPE_CHECKING, Any
++from typing import Any, Dict, List, Set, Tuple, Optional, TYPE_CHECKING, Any
+ 
+ from action_msgs.msg import GoalStatus
+ 
+@@ -57,7 +56,7 @@ class SendActionGoal(Capability):
+     cancel_action_goal_msg_fields = ((True, "action", str),)
+ 
+     actions_glob = None
+-    client_handler_list: dict[str, ActionClientHandler]
++    client_handler_list: Dict[str, ActionClientHandler]
+ 
+     def __init__(self, protocol: Protocol) -> None:
+         # Call superclass constructor
+@@ -137,12 +136,12 @@ class SendActionGoal(Capability):
+         )
+ 
+         if cid is not None:
+-            self.client_handler_list[cid] = client_handler
++            self.client_handler_List[cid] = client_handler
+ 
+         client_handler.run()
+ 
+         if cid is not None:
+-            del self.client_handler_list[cid]
++            del self.client_handler_List[cid]
+ 
+     def cancel_action_goal(self, message: dict) -> None:
+         # Extract the args
+@@ -158,7 +157,7 @@ class SendActionGoal(Capability):
+ 
+         # Cancel the action
+         if cid in self.client_handler_list:
+-            client_handler = self.client_handler_list[cid]
++            client_handler = self.client_handler_List[cid]
+             if client_handler.send_goal_helper is not None:
+                 client_handler.send_goal_helper.cancel_goal()
+ 
+diff --git a/rosbridge_library/src/rosbridge_library/capabilities/service_response.py b/rosbridge_library/src/rosbridge_library/capabilities/service_response.py
+index 5ac7d5f..b4d40d0 100644
+--- a/rosbridge_library/src/rosbridge_library/capabilities/service_response.py
++++ b/rosbridge_library/src/rosbridge_library/capabilities/service_response.py
+@@ -1,3 +1,4 @@
++from typing import Any, Dict, List, Set, Tuple, Optional, Any, Dict, List, Set, Tuple, Optional
+ from rosbridge_library.capability import Capability
+ from rosbridge_library.internal import message_conversion, ros_loader
+ 
+@@ -24,7 +25,7 @@ class ServiceResponse(Capability):
+         # check for the service
+         service_name = message["service"]
+         if service_name in self.protocol.external_service_list:
+-            service_handler = self.protocol.external_service_list[service_name]
++            service_handler = self.protocol.external_service_List[service_name]
+             # parse the message
+             request_id = message["id"]
+             values = message["values"]
+diff --git a/rosbridge_library/src/rosbridge_library/capabilities/unadvertise_action.py b/rosbridge_library/src/rosbridge_library/capabilities/unadvertise_action.py
+index 2114738..8af3191 100644
+--- a/rosbridge_library/src/rosbridge_library/capabilities/unadvertise_action.py
++++ b/rosbridge_library/src/rosbridge_library/capabilities/unadvertise_action.py
+@@ -1,3 +1,4 @@
++from typing import Any, Dict, List, Set, Tuple, Optional, Any, Dict, List, Set, Tuple, Optional
+ # Software License Agreement (BSD License)
+ #
+ # Copyright (c) 2023, PickNik Inc.
+@@ -78,8 +79,8 @@ class UnadvertiseAction(Capability):
+ 
+         # unregister action in ROS
+         if action_name in self.protocol.external_action_list:
+-            self.protocol.external_action_list[action_name].graceful_shutdown()
+-            del self.protocol.external_action_list[action_name]
++            self.protocol.external_action_List[action_name].graceful_shutdown()
++            del self.protocol.external_action_List[action_name]
+             self.protocol.log("info", f"Unadvertised action {action_name}")
+         else:
+             self.protocol.log(
+diff --git a/rosbridge_library/src/rosbridge_library/capabilities/unadvertise_service.py b/rosbridge_library/src/rosbridge_library/capabilities/unadvertise_service.py
+index 117800b..c575857 100644
+--- a/rosbridge_library/src/rosbridge_library/capabilities/unadvertise_service.py
++++ b/rosbridge_library/src/rosbridge_library/capabilities/unadvertise_service.py
+@@ -1,3 +1,4 @@
++from typing import Any, Dict, List, Set, Tuple, Optional, Any, Dict, List, Set, Tuple, Optional
+ import fnmatch
+ 
+ from rosbridge_library.capability import Capability
+@@ -48,9 +49,9 @@ class UnadvertiseService(Capability):
+ 
+         # unregister service in ROS
+         if service_name in self.protocol.external_service_list:
+-            self.protocol.external_service_list[service_name].graceful_shutdown()
+-            self.protocol.external_service_list[service_name].service_handle.destroy()
+-            del self.protocol.external_service_list[service_name]
++            self.protocol.external_service_List[service_name].graceful_shutdown()
++            self.protocol.external_service_List[service_name].service_handle.destroy()
++            del self.protocol.external_service_List[service_name]
+             self.protocol.log("info", f"Unadvertised service {service_name}")
+         else:
+             self.protocol.log(
+diff --git a/rosbridge_library/src/rosbridge_library/internal/actions.py b/rosbridge_library/src/rosbridge_library/internal/actions.py
+index 88dfb14..2e6a580 100644
+--- a/rosbridge_library/src/rosbridge_library/internal/actions.py
++++ b/rosbridge_library/src/rosbridge_library/internal/actions.py
+@@ -29,11 +29,10 @@
+ # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ # POSSIBILITY OF SUCH DAMAGE.
+-from __future__ import annotations
+ 
+ import time
+ from threading import Thread
+-from typing import TYPE_CHECKING, Any, Callable
++from typing import Any, Dict, List, Set, Tuple, Optional, TYPE_CHECKING, Any, Callable
+ 
+ from rclpy.action import ActionClient
+ from rclpy.expand_topic_name import expand_topic_name
+diff --git a/rosbridge_library/src/rosbridge_library/internal/ros_loader.py b/rosbridge_library/src/rosbridge_library/internal/ros_loader.py
+index 71b5a5e..1a8fe49 100644
+--- a/rosbridge_library/src/rosbridge_library/internal/ros_loader.py
++++ b/rosbridge_library/src/rosbridge_library/internal/ros_loader.py
+@@ -32,7 +32,7 @@
+ 
+ import importlib
+ from threading import Lock
+-from typing import Any
++from typing import Any, Dict, List, Set, Tuple, Optional, Any
+ 
+ """ ros_loader contains methods for dynamically loading ROS message classes at
+ runtime.  It's achieved by using roslib to load the manifest files for the
+@@ -42,9 +42,10 @@ Methods typically return the requested class or instance, or None if not found
+ """
+ 
+ # Variable containing the loaded classes
+-_loaded_msgs: dict[str, Any] = {}
+-_loaded_srvs: dict[str, Any] = {}
+-_loaded_actions: dict[str, Any] = {}
++from typing import Any, Dict, List, Set, Tuple, Optional, Any, Dict
++_loaded_msgs = {}  # type: Dict[str, Any]
++_loaded_srvs = {}  # type: Dict[str, Any]
++_loaded_actions = {}  # type: Dict[str, Any]
+ _msgs_lock = Lock()
+ _srvs_lock = Lock()
+ _actions_lock = Lock()
+@@ -144,7 +145,7 @@ def get_action_result_instance(typestring: str) -> Any:
+ 
+ 
+ def _get_interface_class(
+-    typestring: str, intf_type: str, loaded_intfs: dict[str, Any], intf_lock: Lock
++    typestring: str, intf_type: str, loaded_intfs: Dict[str, Any], intf_lock: Lock
+ ) -> Any:
+     """
+     If not loaded, load the specified ROS interface class then return an instance of it.
+@@ -167,7 +168,7 @@ def _get_interface_class(
+         return _get_class(typestring, intf_type, loaded_intfs, intf_lock)
+ 
+ 
+-def _get_class(typestring: str, subname: str, cache: dict[str, Any], lock: Lock) -> Any:
++def _get_class(typestring: str, subname: str, cache: Dict[str, Any], lock: Lock) -> Any:
+     """
+     If not loaded, load the specified class then returns an instance of it.
+ 
+@@ -235,13 +236,13 @@ def _splittype(typestring: str) -> tuple[str, str]:
+     raise InvalidTypeStringException(typestring)
+ 
+ 
+-def _add_to_cache(cache: dict[str, Any], lock: Lock, key: str, value: Any) -> None:
++def _add_to_cache(cache: Dict[str, Any], lock: Lock, key: str, value: Any) -> None:
+     lock.acquire()
+     cache[key] = value
+     lock.release()
+ 
+ 
+-def _get_from_cache(cache: dict[str, Any], lock: Lock, key: str) -> Any:
++def _get_from_cache(cache: Dict[str, Any], lock: Lock, key: str) -> Any:
+     """
+     Return the value for the specified key from the cache.
+ 
+diff --git a/rosbridge_library/src/rosbridge_library/internal/services.py b/rosbridge_library/src/rosbridge_library/internal/services.py
+index ae5da43..8806a81 100644
+--- a/rosbridge_library/src/rosbridge_library/internal/services.py
++++ b/rosbridge_library/src/rosbridge_library/internal/services.py
+@@ -29,10 +29,9 @@
+ # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ # POSSIBILITY OF SUCH DAMAGE.
+-from __future__ import annotations
+ 
+ from threading import Event, Thread
+-from typing import TYPE_CHECKING, Any, Callable
++from typing import Any, Dict, List, Set, Tuple, Optional, TYPE_CHECKING, Any, Callable
+ 
+ from rclpy.callback_groups import ReentrantCallbackGroup
+ 
+diff --git a/rosbridge_library/src/rosbridge_library/protocol.py b/rosbridge_library/src/rosbridge_library/protocol.py
+index f77b6ad..4c05ae2 100644
+--- a/rosbridge_library/src/rosbridge_library/protocol.py
++++ b/rosbridge_library/src/rosbridge_library/protocol.py
+@@ -31,7 +31,7 @@
+ # POSSIBILITY OF SUCH DAMAGE.
+ 
+ import time
+-from typing import Any
++from typing import Any, Dict, List, Set, Tuple, Optional, Any
+ 
+ from rosbridge_library.capabilities.fragmentation import Fragmentation
+ from rosbridge_library.util import bson, json
+@@ -81,9 +81,9 @@ class Protocol:
+     # !! this might be related to (or even be avoided by using) throttle_rate !!
+     delay_between_messages = 0
+     # global list of non-ros advertised services
+-    external_service_list: dict[str, Any]
++    external_service_list: Dict[str, Any]
+     # global list of non-ros advertised actions
+-    external_action_list: dict[str, Any]
++    external_action_list: Dict[str, Any]
+     # Use only BSON for the whole communication if the server has been started with bson_only_mode:=True
+     bson_only_mode = False
+ 
+diff --git a/rosbridge_server/test/websocket/advertise_action.test.py b/rosbridge_server/test/websocket/advertise_action.test.py
+index 1b24373..3b5c8b4 100644
+--- a/rosbridge_server/test/websocket/advertise_action.test.py
++++ b/rosbridge_server/test/websocket/advertise_action.test.py
+@@ -1,4 +1,3 @@
+-from __future__ import annotations
+ 
+ import sys
+ import unittest
+@@ -11,7 +10,7 @@ from twisted.python import log
+ 
+ sys.path.append(str(Path(__file__).parent))  # enable importing from common.py in this directory
+ 
+-from typing import TYPE_CHECKING
++from typing import Any, Dict, List, Set, Tuple, Optional, TYPE_CHECKING
+ 
+ import common
+ from common import expect_messages, websocket_test
+diff --git a/rosbridge_server/test/websocket/advertise_action_feedback.test.py b/rosbridge_server/test/websocket/advertise_action_feedback.test.py
+index 5e4fa2c..d94ad54 100644
+--- a/rosbridge_server/test/websocket/advertise_action_feedback.test.py
++++ b/rosbridge_server/test/websocket/advertise_action_feedback.test.py
+@@ -1,4 +1,3 @@
+-from __future__ import annotations
+ 
+ import sys
+ import unittest
+@@ -11,7 +10,7 @@ from twisted.python import log
+ 
+ sys.path.append(str(Path(__file__).parent))  # enable importing from common.py in this directory
+ 
+-from typing import TYPE_CHECKING
++from typing import Any, Dict, List, Set, Tuple, Optional, TYPE_CHECKING
+ 
+ import common
+ from common import expect_messages, websocket_test

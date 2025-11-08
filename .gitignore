@@ -1,0 +1,36 @@
+# === ROS2 build artefacts ===
+build/
+install/
+log/
+
+# === Colcon + Cache ===
+.colcon_cache/
+.ros/
+**/*.pyc
+__pycache__/
+
+# === Editor / IDE ===
+.vscode/
+.idea/
+.DS_Store
+
+# === Local data ===
+bags/
+*.bag
+*.bag.active
+*.db3
+
+# === Jetson / Host system ===
+*.swp
+*~
+*.tmp
+
+# === Docker-related files (only for Jetson) ===
+ros2_docker/
+*.sh
+Dockerfile*
+docker-compose*.yml
+
+# === Optional ===
+# Falls du nicht alle Launch-Dateien versionieren willst, kannst du gezielt ausschließen:
+# launch/*.py
