@@ -43,8 +43,8 @@ class PersonTrackerNode(Node):
 
         # Dummy-Detektion: eine "Person" zentral im Bild
         bbox = BoundingBox2D()
-        bbox.center.position.x = float(msg.width) / 2.0
-        bbox.center.position.y = float(msg.height) / 2.0
+        bbox.center.x = float(msg.width) / 2.0
+        bbox.center.y = float(msg.height) / 2.0
         bbox.size_x = float(msg.width) * 0.3
         bbox.size_y = float(msg.height) * 0.5
 
