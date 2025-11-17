@@ -51,7 +51,7 @@ class PersonTrackerNode(Node):
         det = Detection2D()
         det.header = msg.header
         det.bbox = bbox
-        det.id = 'person_1'  # später z.B. Tracking-ID vom Tracker
+        #det.id = 'person_1'  # später z.B. Tracking-ID vom Tracker
 
         array_msg = Detection2DArray()
         array_msg.header = msg.header
